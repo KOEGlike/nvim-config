@@ -42,6 +42,9 @@
 
   # see :help nixCats.flake.outputs
   outputs = { self, nixpkgs, nixCats, ... }@inputs: let
+    programs.nixCats = {
+      enable = true;
+    };
     inherit (nixCats) utils;
     luaPath = "${./.}";
     forEachSystem = utils.eachSystem nixpkgs.lib.platforms.all;
