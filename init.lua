@@ -130,7 +130,7 @@ vim.opt.showmode = false
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
 vim.opt.clipboard = 'unnamedplus'
-vim.g.clipboard = 'wayclip'
+vim.g.clipboard = 'wl-copy'
 
 -- Enable break indent
 vim.opt.breakindent = true
