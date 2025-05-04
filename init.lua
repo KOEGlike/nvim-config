@@ -1,6 +1,10 @@
 vim.g.base46_cache = vim.fn.stdpath 'data' .. '/base46/'
 vim.g.mapleader = ' '
 
+-- Add the current config directory to the runtime path
+local config_path = vim.fn.expand('<sfile>:p:h')
+vim.opt.rtp:prepend(config_path)
+
 -- bootstrap lazy and all plugins
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 
@@ -29,9 +33,17 @@ require('lazy').setup({
 dofile(vim.g.base46_cache .. 'defaults')
 dofile(vim.g.base46_cache .. 'statusline')
 
-require 'options'
+-- Explicitly load with pcall to provide better error handling
+local ok, _ = pcall(require, 'options')
+if not ok then
+  vim.notify("Failed to load options module", vim.log.levels.ERROR)
+end
+
 require 'nvchad.autocmds'
 
 vim.schedule(function()
-  require 'mappings'
+  local ok, _ = pcall(require, 'mappings')
+  if not ok then
+    vim.notify("Failed to load mappings module", vim.log.levels.ERROR)
+  end
 end)
