@@ -125,12 +125,6 @@
               cargo
               rustc
             ];
-            kickstart-debug = [
-              delve
-            ];
-            kickstart-lint = [
-              markdownlint-cli
-            ];
           };
 
           # This is for plugins that will load at startup without using packadd:
@@ -159,6 +153,8 @@
               todo-comments-nvim
               mini-nvim
               nvim-treesitter.withAllGrammars
+              nvchad
+              nvchad-ui
               # This is for if you only want some of the grammars
               # (nvim-treesitter.withPlugins (
               #   plugins: with plugins; [
@@ -166,30 +162,6 @@
               #     lua
               #   ]
               # ))
-            ];
-            kickstart-debug = [
-              nvim-dap
-              nvim-dap-ui
-              nvim-dap-go
-              nvim-nio
-            ];
-            kickstart-indent_line = [
-              indent-blankline-nvim
-            ];
-            kickstart-lint = [
-              nvim-lint
-            ];
-            kickstart-autopairs = [
-              nvim-autopairs
-            ];
-            kickstart-neo-tree = [
-              neo-tree-nvim
-              nui-nvim
-              # nixCats will filter out duplicate packages
-              # so you can put dependencies with stuff even if they're
-              # also somewhere else
-              nvim-web-devicons
-              plenary-nvim
             ];
           };
 
@@ -276,19 +248,8 @@
               customPlugins = true;
               test = true;
 
-              kickstart-autopairs = true;
-              kickstart-neo-tree = true;
-              kickstart-debug = true;
-              kickstart-lint = true;
-              kickstart-indent_line = true;
-
-              # this kickstart extra didnt require any extra plugins
-              # so it doesnt have a category above.
-              # but we can still send the info from nix to lua that we want it!
-              kickstart-gitsigns = true;
-
               # we can pass whatever we want actually.
-              have_nerd_font = false;
+              have_nerd_font = true;
 
               example = {
                 youCan = "add more than just booleans";
