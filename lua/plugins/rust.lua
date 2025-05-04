@@ -1,6 +1,6 @@
 return {
   {
-    'mrcjkb/rustationvim',
+    'mrcjkb/rustaceannvim',
     version = '^6',
     lazy = false,
   },
