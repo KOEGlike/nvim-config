@@ -1,49 +1,50 @@
-vim.g.base46_cache = vim.fn.stdpath 'data' .. '/base46/'
-vim.g.mapleader = ' '
+-- NOTE: this just gives nixCats global command a default value
+-- so that it doesnt throw an error if you didnt install via nix.
+-- usage of both this setup and the nixCats command is optional,
+-- but it is very useful for passing info from nix to lua so you will likely use it at least once.
+require('nixCatsUtils').setup {
+  non_nix_value = true,
+}
 
--- Add the current config directory to the runtime path
-local config_path = vim.fn.expand('<sfile>:p:h')
-vim.opt.rtp:prepend(config_path)
-
--- bootstrap lazy and all plugins
-local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
-
-if not vim.uv.fs_stat(lazypath) then
-  local repo = 'https://github.com/folke/lazy.nvim.git'
-  vim.fn.system { 'git', 'clone', '--filter=blob:none', repo, '--branch=stable', lazypath }
-end
-
-vim.opt.rtp:prepend(lazypath)
-
-local lazy_config = require 'configs.lazy'
-
--- load plugins
-require('lazy').setup({
-  {
-    'NvChad/NvChad',
-    lazy = false,
-    branch = 'v2.5',
-    import = 'nvchad.plugins',
-  },
-
-  { import = 'plugins' },
-}, lazy_config)
-
--- load theme
-dofile(vim.g.base46_cache .. 'defaults')
-dofile(vim.g.base46_cache .. 'statusline')
-
--- Explicitly load with pcall to provide better error handling
-local ok, _ = pcall(require, 'options')
-if not ok then
-  vim.notify("Failed to load options module", vim.log.levels.ERROR)
-end
-
-require 'nvchad.autocmds'
-
-vim.schedule(function()
-  local ok, _ = pcall(require, 'mappings')
-  if not ok then
-    vim.notify("Failed to load mappings module", vim.log.levels.ERROR)
+-- NOTE: You might want to move the lazy-lock.json file
+local function getlockfilepath()
+  if require('nixCatsUtils').isNixCats and type(nixCats.settings.unwrappedCfgPath) == 'string' then
+    return nixCats.settings.unwrappedCfgPath .. '/lazy-lock.json'
+  else
+    return vim.fn.stdpath 'config' .. '/lazy-lock.json'
   end
-end)
+end
+local lazyOptions = {
+  lockfile = getlockfilepath(),
+}
+
+-- NOTE: this the lazy wrapper. Use it like require('lazy').setup() but with an extra
+-- argument, the path to lazy.nvim as downloaded by nix, or nil, before the normal arguments.
+require('nixCatsUtils.lazyCat').setup(nixCats.pawsible { 'allPlugins', 'start', 'lazy.nvim' }, {
+  { 'LazyVim/LazyVim', import = 'lazyvim.plugins' },
+  -- disable mason.nvim while using nix
+  -- precompiled binaries do not agree with nixos, and we can just make nix install this stuff for us.
+  { 'williamboman/mason-lspconfig.nvim', enabled = require('nixCatsUtils').lazyAdd(true, false) },
+  { 'williamboman/mason.nvim', enabled = require('nixCatsUtils').lazyAdd(true, false) },
+  {
+    'nvim-treesitter/nvim-treesitter',
+    build = require('nixCatsUtils').lazyAdd ':TSUpdate',
+    opts_extend = require('nixCatsUtils').lazyAdd(nil, false),
+    opts = {
+      -- nix already ensured they were installed, and we would need to change the parser_install_dir if we wanted to use it instead.
+      -- so we just disable install and do it via nix.
+      ensure_installed = require('nixCatsUtils').lazyAdd({ 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'vim', 'vimdoc' }, false),
+      auto_install = require('nixCatsUtils').lazyAdd(true, false),
+    },
+  },
+  {
+    'folke/lazydev.nvim',
+    opts = {
+      library = {
+        { path = (nixCats.nixCatsPath or '') .. '/lua', words = { 'nixCats' } },
+      },
+    },
+  },
+  -- import/override with your plugins
+  { import = 'plugins' },
+}, lazyOptions)
