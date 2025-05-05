@@ -1,3 +1,5 @@
+vim.g.clipboard = 'wl-copy'
+
 -- NOTE: this just gives nixCats global command a default value
 -- so that it doesnt throw an error if you didnt install via nix.
 -- usage of both this setup and the nixCats command is optional,
